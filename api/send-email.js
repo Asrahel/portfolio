@@ -1,36 +1,44 @@
-import nodemailer from "nodemailer";
+import { Resend } from 'resend';
+
+// Initialize Resend client using the API Key from Vercel environment
+const resend = new Resend(process.env.RESEND_API_KEY); 
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    // Correctly handle non-POST requests
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
-    // req.body is already parsed JSON because frontend sends Content-Type: application/json
     const { name, email, message } = req.body;
-
+    
     if (!name || !email || !message) {
-      return res.status(400).json({ error: "Missing required fields" });
+        return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.EMAIL_USER}>`,
-      to: process.env.RECEIVER_EMAIL,
+    // Use Resend to send the email over HTTP
+    const { data, error } = await resend.emails.send({
+      // ⚠️ IMPORTANT: 'from' MUST be a verified domain/email on Resend
+      from: `Portfolio Contact <no-reply@your-verified-domain.com>`, 
+      to: [process.env.RECEIVER_EMAIL],
+      reply_to: email, // Allow you to reply directly to the sender's email
       subject: `New message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+      html: `
+        <strong>Name:</strong> ${name}<br>
+        <strong>Email:</strong> ${email}<br>
+        <strong>Message:</strong> ${message}
+      `,
     });
 
-    return res.status(200).json({ success: true, message: "Message sent successfully!" });
+    if (error) {
+      console.error("❌ Resend error:", error);
+      return res.status(500).json({ error: "Email API failed to send message." });
+    }
+
+    // Success response
+    return res.status(200).json({ success: true, message: "Message sent successfully! Thank you for your interest." });
   } catch (error) {
-    console.error("❌ Email error:", error);
-    return res.status(500).json({ error: "Something went wrong while sending the email." });
+    console.error("❌ Server error:", error);
+    return res.status(500).json({ error: "An unexpected server error occurred." });
   }
 }

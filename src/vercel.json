@@ -4,9 +4,24 @@
     { "src": "api/send-email.js", "use": "@vercel/node" },
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "style1.css", "use": "@vercel/static" }
+    
   ],
   "routes": [
-    { "src": "/api/send-email", "dest": "/api/send-email.js" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    
+    { 
+      "src": "/api/send-email", 
+      "dest": "/api/send-email.js" 
+    },
+    
+    
+    { 
+      "src": "/(.*\\.(css|js|jpg|jpeg|png|gif|svg|pdf))", 
+      "dest": "/$1" 
+    },
+
+    { 
+      "src": "/(.*)", 
+      "dest": "/index.html" 
+    }
   ]
 }
