@@ -14,7 +14,7 @@ app.use(express.json()); // ✅ Add this to parse JSON body
 app.use(express.static(__dirname)); // serve HTML/CSS in same folder
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index1.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // ✅ Make sure the route matches your frontend
