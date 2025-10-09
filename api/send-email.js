@@ -19,7 +19,7 @@ export default async function handler(req, res) {
     // Use Resend to send the email over HTTP
     const { data, error } = await resend.emails.send({
       // ⚠️ IMPORTANT: 'from' MUST be a verified domain/email on Resend
-      from: `Portfolio Contact <no-reply@your-verified-domain.com>`, 
+      from: `Portfolio Contact https://portfolio-inky-pi-51.vercel.app`, 
       to: [process.env.RECEIVER_EMAIL],
       reply_to: email, // Allow you to reply directly to the sender's email
       subject: `New message from ${name}`,
